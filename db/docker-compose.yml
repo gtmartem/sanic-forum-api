@@ -1,0 +1,18 @@
+version: "3"
+services:
+  confluence:
+    image: postgres:11
+    container_name: postgres-forum
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 0a610292api
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+      - ./database/logs:/var/log/postgresql
+      # необходимо создать каталог database и перенести в него initdb.sql
+      # тогда после отработки initdb будут пущены все *.sh и *.sql
+      # скрипты, попавшие в /docker-entrypoint-initdb.d контейнера
+      - ./database/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    ports:
+      - "5432:5432"
