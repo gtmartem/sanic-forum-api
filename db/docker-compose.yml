@@ -1,3 +1,5 @@
+# при повторном запуске необходимо убедиться, что каталог
+# ./database/data пуст
 version: "3"
 services:
   confluence:
@@ -7,12 +9,18 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 0a610292api
+      POSTGRES_DB: forum
+    logging:
+      # логи доступны на хосте по команде docker logs postgres-forum
+      driver: json-file
+      options:
+        tag: postgres-forum
     volumes:
       - ./database/data:/var/lib/postgresql/data
-      - ./database/logs:/var/log/postgresql
+      - ./database/postgresql.log:/var/log/postgresql.log
       # необходимо создать каталог database и перенести в него initdb.sql
       # тогда после отработки initdb будут пущены все *.sh и *.sql
       # скрипты, попавшие в /docker-entrypoint-initdb.d контейнера
-      - ./database/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     ports:
-      - "5432:5432"
+      - "5430:5432"
