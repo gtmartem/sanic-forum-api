@@ -35,3 +35,11 @@ CREATE TABLE forum.public.comments (
       REFERENCES forum.public.comments(id)
       ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE INDEX sections_id
+    ON forum.public.sections
+        USING btree(id);
+
+CREATE INDEX post_id
+    ON forum.public.posts
+        USING btree(id);
