@@ -34,7 +34,7 @@ v1.add_route(delete_section_method, uri="/section/<section_id>",
              methods=["DELETE"])
 
 # post api:
-v1.add_route(get_all_posts_method, uri="/section/<section_id>",
+v1.add_route(get_all_posts_method, uri="/section/<section_id>/posts",
              methods=["GET"])
 v1.add_route(get_post_by_id_method, uri="/post/<post_id>",
              methods=["GET"])
