@@ -24,5 +24,5 @@ async def put_section_method(request, section_id):
 
 
 async def delete_section_method(request, section_id):
-    section = await db_api.delete_section(section_id)
+    await db_api.delete_section(section_id)
     return json(section_id, status=200)
