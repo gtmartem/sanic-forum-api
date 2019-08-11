@@ -1,7 +1,9 @@
 # при повторном запуске необходимо убедиться, что каталог
 # ./database/data пуст
 version: "3"
+
 services:
+
   confluence:
     image: postgres:11
     container_name: postgres-forum
@@ -16,11 +18,26 @@ services:
       options:
         tag: postgres-forum
     volumes:
-      - ./database/data:/var/lib/postgresql/data
-      - ./database/postgresql.log:/var/log/postgresql.log
-      # необходимо создать каталог database и перенести в него initdb.sql
-      # тогда после отработки initdb будут пущены все *.sh и *.sql
-      # скрипты, попавшие в /docker-entrypoint-initdb.d контейнера
-      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+      - ./db/database/data:/var/lib/postgresql/data
+      - ./db/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
     ports:
       - "5430:5432"
+
+  forum_api:
+    image: forum_api:latest
+    container_name: forum-api
+    restart: always
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: confluence
+      DB_PORT: 5432
+    logging:
+      driver: json-file
+      options:
+        tag: forum_api
+    ports:
+      - "8080:8080"
+    command:
+      "python3 /tmp/src/forum_api/forum_api/main.py"

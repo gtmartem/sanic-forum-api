@@ -46,7 +46,7 @@ v1.add_route(delete_post_method, uri="/post/<post_id>",
              methods=["DELETE"])
 
 # comment api:
-v1.add_route(get_all_comments_method, uri="/post/<post_id>",
+v1.add_route(get_all_comments_method, uri="/post/<post_id>/comments",
              methods=["GET"])
 v1.add_route(get_comment_by_id_method, uri="/comment/<comment_id>/",
              methods=["GET"])
