@@ -30,7 +30,7 @@ async def get_section_by_id(section_id):
                 return dict(data)
 
 
-async def post_sectiod(request):
+async def post_section(request):
     query = """
     INSERT 
     INTO sections (title, description, created_at, updated_at)
@@ -49,7 +49,7 @@ async def post_sectiod(request):
             return dict(data)
 
 
-async def put_section(section_id, request):
+async def put_section(request, section_id):
     query = """
     UPDATE sections 
     SET title = %(title)s, 
