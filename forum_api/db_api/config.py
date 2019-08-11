@@ -1,6 +1,6 @@
 USER = "postgres"
 PASSWORD = "0a610292api"
-IP = "0a610292api"
+IP = "127.0.0.1"
 PORT = "5430"
 DB = "forum"
 URL = 'postgresql://{}:{}@{}:{}/{}'
