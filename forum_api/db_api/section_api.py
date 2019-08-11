@@ -30,7 +30,7 @@ async def get_section_by_id(section_id):
                 return dict(data)
 
 
-async def post_section_method(request):
+async def post_sectiod(request):
     query = """
     INSERT 
     INTO sections (title, description, created_at, updated_at)
@@ -49,7 +49,7 @@ async def post_section_method(request):
             return dict(data)
 
 
-async def put_section_method(section_id, request):
+async def put_section(section_id, request):
     query = """
     UPDATE sections 
     SET title = %(title)s, 
@@ -71,7 +71,7 @@ async def put_section_method(section_id, request):
                 return dict(data)
 
 
-async def delete_section_method(section_id):
+async def delete_section(section_id):
     query = """
     DELETE FROM posts WHERE id = %(section_id)s"""
     async with aiopg.connect(DB_URL) as conn:
