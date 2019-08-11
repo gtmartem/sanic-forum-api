@@ -1,4 +1,3 @@
-from sanic.response import json
 from sanic import Sanic
 
 from forum_api.api.api_versions import api_versions
