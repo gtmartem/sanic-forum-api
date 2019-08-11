@@ -1,5 +1,7 @@
 from sanic.response import json
 
+from forum_api import db_api
+
 
 async def get_all_sections_method(request):
     users = await db_api.get_all_sections()
