@@ -73,7 +73,7 @@ async def put_section(request, section_id):
 
 async def delete_section(section_id):
     query = """
-    DELETE FROM posts WHERE id = %(section_id)s"""
+    DELETE FROM sections WHERE id = %(section_id)s"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"section_id": section_id})

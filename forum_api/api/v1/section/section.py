@@ -8,8 +8,8 @@ async def get_all_sections_method(request):
     return json(section, status=200)
 
 
-async def get_section_by_id_method(request, user_id):
-    section = await db_api.get_section_by_id(user_id)
+async def get_section_by_id_method(request, section_id):
+    section = await db_api.get_section_by_id(section_id)
     return json(section, status=200)
 
 
