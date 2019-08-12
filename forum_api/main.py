@@ -11,4 +11,4 @@ if __name__ == "__main__":
     app.error_handler.add(InvalidUsage, error_handler)
     app.error_handler.add(NotFound, error_handler)
     app.error_handler.add(ServerError, error_handler)
-    app.run(host="0.0.0.0", port=8081, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
