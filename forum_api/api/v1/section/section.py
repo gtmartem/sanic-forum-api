@@ -1,28 +1,65 @@
-from sanic.response import json
+from sanic.exceptions import NotFound
 
 from forum_api import db_api
+from forum_api.api.v1.helper import HTTPViewHelper
+from forum_api.errors.exceptions import server_error_wrapper
 
 
-async def get_all_sections_method(request):
-    section = await db_api.get_all_sections()
-    return json(section, status=200)
+class GetAllSectionsView(HTTPViewHelper):
+    body_required = False
+    json_required = False
+
+    @server_error_wrapper
+    async def get(self, request):
+        section = await db_api.get_all_sections()
+        if section:
+            return section
+        raise NotFound("no sections")
 
 
-async def get_section_by_id_method(request, section_id):
-    section = await db_api.get_section_by_id(section_id)
-    return json(section, status=200)
+class GetSectionByIdView(HTTPViewHelper):
+    body_required = False
+    json_required = False
+
+    @server_error_wrapper
+    async def get(self, request, section_id):
+        section = await db_api.get_section_by_id(section_id)
+        if section:
+            return section
+        raise NotFound(f"no section with {section_id} id")
 
 
-async def post_section_method(request):
-    section = await db_api.post_section(request.json)
-    return json(section, status=200)
+class PostSectionView(HTTPViewHelper):
+    body_required = True
+    json_required = ["title", "description"]
+    type_check = {"title": str, "description": str}
+    status = 201
+
+    @server_error_wrapper
+    async def post(self, request):
+        section = await db_api.post_section(request.json)
+        return section
 
 
-async def put_section_method(request, section_id):
-    section = await db_api.put_section(request.json, section_id)
-    return json(section, status=200)
+class PutSectionView(HTTPViewHelper):
+    body_required = True
+    json_required = ["title", "description"]
+    type_check = {"title": str, "description": str}
+
+    @server_error_wrapper
+    async def put(self, request, section_id):
+        section = await db_api.put_section(request.json, section_id)
+        if section:
+            return section
+        raise NotFound(f"no section with {section_id} id")
 
 
-async def delete_section_method(request, section_id):
-    await db_api.delete_section(section_id)
-    return json(section_id, status=200)
+class DeleteSectionView(HTTPViewHelper):
+    body_required = False
+    json_required = False
+
+    @server_error_wrapper
+    async def delete(self, request, section_id):
+        await db_api.delete_section(section_id)
+        return {"id": section_id}
+

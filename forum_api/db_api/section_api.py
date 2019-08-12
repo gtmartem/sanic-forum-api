@@ -4,7 +4,6 @@ import aiopg
 from psycopg2.extras import DictCursor
 
 from forum_api.db_api.__config import DB_URL
-from forum_api.errors.exceptions import InvalidData, NoBody
 
 
 async def get_all_sections():
@@ -15,7 +14,9 @@ async def get_all_sections():
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query)
             data = await cur.fetchall()
-            return [dict(u) for u in data]
+            if data:
+                return [dict(u) for u in data]
+            return None
 
 
 async def get_section_by_id(section_id):
@@ -29,6 +30,7 @@ async def get_section_by_id(section_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def post_section(request):
@@ -37,16 +39,12 @@ async def post_section(request):
     INTO sections (title, description, created_at, updated_at)
     VALUES (%(title)s, %(description)s, %(created_at)s, %(updated_at)s)
     RETURNING  id, title, description, created_at, updated_at;"""
-    if not request:
-        raise NoBody()
     params = dict(
         title=request.get("title", None),
         description=request.get("description", None),
         created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         updated_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )
-    if None in params.values():
-        raise InvalidData
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
