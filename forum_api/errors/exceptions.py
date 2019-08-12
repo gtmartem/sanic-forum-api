@@ -1,16 +1,14 @@
-class InvalidData(Exception):
-    def __init__(self, msg=None, status=400):
-        if msg is None:
-            msg = "InvalidData"
-        super().__init__(msg)
-        self.msg = msg
-        self.status = status
+from sanic.exceptions import ServerError, NotFound, InvalidUsage
 
 
-class NoBody(Exception):
-    def __init__(self, msg=None, status=400):
-        if msg is None:
-            msg = "NoBody"
-        super().__init__(msg)
-        self.msg = msg
-        self.status = status
+def server_error_wrapper(fn):
+    async def wrapped(*args, **kwargs):
+        try:
+            return await fn(*args, **kwargs)
+        except NotFound as nf:
+            raise nf
+        except InvalidUsage as iu:
+            raise iu
+        except Exception:
+            raise ServerError("server error")
+    return wrapped
