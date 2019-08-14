@@ -10,12 +10,14 @@ async def get_all_comments(post_id):
     query = """
     SELECT id, post_id, title, level, parent_id, created_at
     FROM public.comments
-    WHERE post_id = %(post_id)s;"""
+    WHERE post_id = %(post_id)s
+    ORDER BY created_at;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"post_id": post_id})
             data = await cur.fetchall()
-            return [dict(u) for u in data]
+            if data:
+                return [dict(u) for u in data]
 
 
 async def get_comment_by_id(comment_id):
@@ -48,7 +50,21 @@ async def post_comment(request, post_id):
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
             data = await cur.fetchone()
-            return dict(data)
+            if data:
+                return dict(data)
+
+
+async def get_comment_level(parent_id):
+    query = """
+    SELECT level
+    FROM public.comments
+    WHERE id = %(parent_id)s;"""
+    async with aiopg.connect(DB_URL) as conn:
+        async with conn.cursor(cursor_factory=DictCursor) as cur:
+            await cur.execute(query, {'parent_id': parent_id})
+            data = await cur.fetchone()
+            if data:
+                return dict(data)
 
 
 async def put_comment(request, comment_id):
@@ -73,7 +89,7 @@ async def put_comment(request, comment_id):
                 return dict(data)
 
 
-async def delete_section(comment_id):
+async def delete_comment(comment_id):
     query = """
     DELETE FROM public.comments WHERE id = %(comment_id)s"""
     async with aiopg.connect(DB_URL) as conn:
