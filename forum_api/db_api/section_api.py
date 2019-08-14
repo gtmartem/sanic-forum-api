@@ -49,6 +49,28 @@ async def get_section_by_id(section_id):
             return None
 
 
+async def get_sections_by_search(request):
+    query = """
+    SELECT public.sections.id, 
+           public.sections.title, 
+           public.sections.description, 
+           public.sections.created_at, 
+           public.sections.updated_at, 
+           1 AS rank
+    FROM public.sections_search
+    LEFT JOIN public.sections 
+    ON public.sections.id = public.sections_search.section_id
+    WHERE "public.sections_search.title" @@ plainto_tsquery(%(search)s)
+    ORDER BY rank;"""
+    async with aiopg.connect(DB_URL) as conn:
+        async with conn.cursor(cursor_factory=DictCursor) as cur:
+            await cur.execute(query, {'search': request.get("search")})
+            data = await cur.fetchone()
+            if data:
+                return dict(data)
+            return None
+
+
 async def post_section(request):
     query = """
     INSERT 

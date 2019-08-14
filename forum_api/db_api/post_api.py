@@ -55,6 +55,29 @@ async def get_post_by_id(post_id):
                 return dict(data)
 
 
+async def get_posts_by_search(request):
+    query = """
+    SELECT public.post.id, 
+           public.post.title, 
+           public.post.description, 
+           public.post.created_at, 
+           public.post.updated_at, 
+           public.post.section_id,
+           1 AS rank
+    FROM public.posts_search
+    LEFT JOIN public.posts 
+    ON public.posts.id = public.posts_search.post_id
+    WHERE "public.posts_search.title" @@ plainto_tsquery(%(search)s)
+    ORDER BY rank;"""
+    async with aiopg.connect(DB_URL) as conn:
+        async with conn.cursor(cursor_factory=DictCursor) as cur:
+            await cur.execute(query, {'search': request.get("search")})
+            data = await cur.fetchone()
+            if data:
+                return dict(data)
+            return None
+
+
 async def post_post(request, section_id):
     query = """
     INSERT 
