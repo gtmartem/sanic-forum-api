@@ -11,10 +11,23 @@ class GetAllSectionsView(HTTPViewHelper):
 
     @server_error_wrapper
     async def get(self, request):
-        section = await db_api.get_all_sections()
-        if section:
-            return section
+        sections = await db_api.get_all_sections()
+        if sections:
+            return sections
         raise NotFound("no sections")
+
+
+class GetSectionsByPage(HTTPViewHelper):
+    body_required = False
+    json_required = False
+
+    @server_error_wrapper
+    async def get(self, request, page_number):
+        page_number = 1 if page_number in [0, 1] else page_number
+        sections = await db_api.get_sections_by_page(page_number)
+        if sections:
+            return sections
+        raise NotFound(f"no sections on {page_number} page")
 
 
 class GetSectionByIdView(HTTPViewHelper):

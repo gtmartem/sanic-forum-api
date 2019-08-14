@@ -1,7 +1,8 @@
 from sanic import Blueprint
 
 from forum_api.api.v1.section.section import GetAllSectionsView, \
-    GetSectionByIdView, PostSectionView, PutSectionView, DeleteSectionView
+    GetSectionByIdView, PostSectionView, PutSectionView, DeleteSectionView, \
+    GetSectionsByPage
 from forum_api.api.v1.post.post import \
     get_all_posts_method, \
     get_post_by_id_method, \
@@ -19,6 +20,8 @@ v1 = Blueprint("v1", url_prefix="/v1")
 
 # section api:
 v1.add_route(GetAllSectionsView.as_view(), uri="/sections",
+             methods=["GET"])
+v1.add_route(GetSectionsByPage.as_view(), uri="/sections/<page_number:int>",
              methods=["GET"])
 v1.add_route(GetSectionByIdView.as_view(), uri="/section/<section_id:int>",
              methods=["GET"])
