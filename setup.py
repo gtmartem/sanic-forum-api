@@ -7,7 +7,8 @@ setup(
     version='0.1.0',
     install_requires=[
         "sanic==19.3.1",
-        "aiopg==0.16.0"
+        "aiopg==0.16.0",
+        "pytest==5.0.1"
     ],
     include_package_data=True,
     packages=find_packages(),
