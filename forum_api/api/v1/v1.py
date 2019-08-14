@@ -5,13 +5,8 @@ from forum_api.api.v1.post.post import GetAllPostsView, GetPostsByPage, \
 from forum_api.api.v1.section.section import GetAllSectionsView, \
     GetSectionByIdView, PostSectionView, PutSectionView, DeleteSectionView, \
     GetSectionsByPage
-
-from forum_api.api.v1.comment.comment import \
-    get_all_comments_method, \
-    get_comment_by_id_method, \
-    post_comment_method, \
-    put_comment_method, \
-    delete_comment_method
+from forum_api.api.v1.comment.comment import GetAllCommentsView, \
+    GetCommentById, PostCommentView, PutCommentView, DeleteCommentView
 
 v1 = Blueprint("v1", url_prefix="/v1")
 
@@ -45,13 +40,13 @@ v1.add_route(DeletePostView.as_view(), uri="/post/<post_id:int>",
              methods=["DELETE"])
 
 # comment api:
-v1.add_route(get_all_comments_method, uri="/post/<post_id>/comments",
+v1.add_route(GetAllCommentsView.as_view(), uri="/post/<post_id:int>/comments",
              methods=["GET"])
-v1.add_route(get_comment_by_id_method, uri="/comment/<comment_id>/",
+v1.add_route(GetCommentById.as_view(), uri="/comment/<comment_id:int>/",
              methods=["GET"])
-v1.add_route(post_comment_method, uri="/post/<post_id>/comment",
+v1.add_route(PostCommentView.as_view(), uri="/post/<post_id:int>/comment",
              methods=["POST"])
-v1.add_route(put_comment_method, uri="/comment/<comment_id>",
+v1.add_route(PutCommentView.as_view(), uri="/comment/<comment_id:int>",
              methods=["PUT"])
-v1.add_route(delete_comment_method, uri="/comment/<comment_id>",
+v1.add_route(DeleteCommentView.as_view(), uri="/comment/<comment_id:int>",
              methods=["DELETE"])
