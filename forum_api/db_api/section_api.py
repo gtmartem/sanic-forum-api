@@ -55,6 +55,12 @@ async def post_section(request):
     INTO sections (title, description, created_at, updated_at)
     VALUES (%(title)s, %(description)s, %(created_at)s, %(updated_at)s)
     RETURNING  id, title, description, created_at, updated_at;"""
+    search_query = """
+    INSERT 
+    INTO public.sections_search (section_id, title)
+    VALUES (%(section_id)s, 
+            to_tsvector(%(title)s))
+    RETURNING section_id;"""
     params = dict(
         title=request.get("title", None),
         description=request.get("description", None),
@@ -66,6 +72,11 @@ async def post_section(request):
             await cur.execute(query, params)
             data = await cur.fetchone()
             if data:
+                serach_params = dict(
+                    section_id=data.get("id"),
+                    title=data.get("title")
+                )
+                await cur.execute(search_query, serach_params)
                 return dict(data)
 
 
