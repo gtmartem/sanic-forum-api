@@ -1,14 +1,11 @@
 from sanic import Blueprint
 
+from forum_api.api.v1.post.post import GetAllPostsView, GetPostsByPage, \
+    GetPostById, PostPostView, PutPostView, DeletePostView
 from forum_api.api.v1.section.section import GetAllSectionsView, \
     GetSectionByIdView, PostSectionView, PutSectionView, DeleteSectionView, \
     GetSectionsByPage
-from forum_api.api.v1.post.post import \
-    get_all_posts_method, \
-    get_post_by_id_method, \
-    post_post_method, \
-    put_post_method, \
-    delete_post_method
+
 from forum_api.api.v1.comment.comment import \
     get_all_comments_method, \
     get_comment_by_id_method, \
@@ -33,15 +30,18 @@ v1.add_route(DeleteSectionView.as_view(), uri="/section/<section_id:int>",
              methods=["DELETE"])
 
 # post api:
-v1.add_route(get_all_posts_method, uri="/section/<section_id>/posts",
+v1.add_route(GetAllPostsView.as_view(), uri="/section/<section_id:int>/posts",
              methods=["GET"])
-v1.add_route(get_post_by_id_method, uri="/post/<post_id>",
+v1.add_route(GetPostsByPage.as_view(),
+             uri="/section/<section_id: int>/posts/<page_number:int>",
              methods=["GET"])
-v1.add_route(post_post_method, uri="/section/<section_id>/post",
+v1.add_route(GetPostById.as_view(), uri="/post/<post_id:int>",
+             methods=["GET"])
+v1.add_route(PostPostView.as_view(), uri="/section/<section_id:int>/post",
              methods=["POST"])
-v1.add_route(put_post_method, uri="/post/<post_id>",
+v1.add_route(PutPostView.as_view(), uri="/post/<post_id:int>",
              methods=["PUT"])
-v1.add_route(delete_post_method, uri="/post/<post_id>",
+v1.add_route(DeletePostView.as_view(), uri="/post/<post_id:int>",
              methods=["DELETE"])
 
 # comment api:
