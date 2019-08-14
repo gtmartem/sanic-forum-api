@@ -65,6 +65,12 @@ async def post_post(request, section_id):
             %(created_at)s, 
             %(updated_at)s)
     RETURNING  id, section_id, title, description, created_at, updated_at;"""
+    search_query = """
+    INSERT 
+    INTO public.posts_search (post_id, title)
+    VALUES (%(post_id)s, 
+            to_tsvector(%(title)s))
+    RETURNING post_id;"""
     params = dict(
         section_id=section_id,
         title=request.get("title"),
@@ -77,6 +83,11 @@ async def post_post(request, section_id):
             await cur.execute(query, params)
             data = await cur.fetchone()
             if data:
+                serach_params = dict(
+                    post_id=data.get("id"),
+                    title=data.get("title")
+                )
+                await cur.execute(search_query, serach_params)
                 return dict(data)
 
 
