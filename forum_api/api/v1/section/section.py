@@ -17,7 +17,7 @@ class GetAllSectionsView(HTTPViewHelper):
         raise NotFound("no sections")
 
 
-class GetSectionsByPage(HTTPViewHelper):
+class GetSectionsByPageView(HTTPViewHelper):
     body_required = False
     json_required = False
 
@@ -40,6 +40,19 @@ class GetSectionByIdView(HTTPViewHelper):
         if section:
             return section
         raise NotFound(f"no section with {section_id} id")
+
+
+class GetSectionsBySearchView(HTTPViewHelper):
+    body_required = True
+    json_required = ["search"]
+    type_check = {"search": str}
+
+    @server_error_wrapper
+    async def get(self, request):
+        sections = await db_api.get_sections_by_search(request)
+        if sections:
+            return sections
+        raise NotFound(f"no found sections by search: {request.get('search')}")
 
 
 class PostSectionView(HTTPViewHelper):
