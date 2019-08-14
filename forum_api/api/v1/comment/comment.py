@@ -13,8 +13,23 @@ class GetAllCommentsView(HTTPViewHelper):
     async def get(self, request, post_id):
         comments = await db_api.get_all_comments(post_id)
         if comments:
-            return comments
+            tree = []
+            self.create_comments_tree(comments, tree)
+            return tree
         raise NotFound(f"no comments in post {post_id}")
+
+    # очень наивная функция обхода элементов, так как для каждого элемента
+    # происходит обход всего массива, т.е. n**2, можно делать копии и
+    # удалять обойденные элементы, но тут вопрос просадок по памяти.
+    # Так как комментариев вряд ли будет тысячи - обход,
+    # для первой итерации, принимаем.
+    def create_comments_tree(self, comments, tree, deep=1, parent_id=None):
+        for leaf in comments:
+            if leaf.get("level") == deep and leaf.get("parent_id") == parent_id:
+                leaf["subtree"] = []
+                tree.append(leaf)
+                self.create_comments_tree(comments, leaf["subtree"],
+                                          deep=deep+1, parent_id=leaf.get("id"))
 
 
 class GetCommentById(HTTPViewHelper):
