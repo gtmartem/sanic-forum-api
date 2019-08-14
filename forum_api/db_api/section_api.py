@@ -9,12 +9,30 @@ from forum_api.db_api.__config import DB_URL
 async def get_all_sections():
     query = """
     SELECT id, title, description, created_at, updated_at 
-    FROM public.sections;"""
+    FROM public.sections
+    ORDER BY updated_at DESC;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query)
             data = await cur.fetchall()
-            return [dict(u) for u in data]
+            if data:
+                return [dict(u) for u in data]
+
+
+async def get_sections_by_page(page_number):
+    query = """
+    SELECT id, title, description, created_at, updated_at 
+    FROM public.sections
+    ORDER BY updated_at DESC
+    LIMIT %(limit)s OFFSET %(offset)s;"""
+    limit = 30
+    offset = (page_number - 1) * limit
+    async with aiopg.connect(DB_URL) as conn:
+        async with conn.cursor(cursor_factory=DictCursor) as cur:
+            await cur.execute(query, {"limit": limit, "offset": offset})
+            data = await cur.fetchall()
+            if data:
+                return [dict(u) for u in data]
 
 
 async def get_section_by_id(section_id):
@@ -46,7 +64,8 @@ async def post_section(request):
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
             data = await cur.fetchone()
-            return dict(data)
+            if data:
+                return dict(data)
 
 
 async def put_section(request, section_id):
