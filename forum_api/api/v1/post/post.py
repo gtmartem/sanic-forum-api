@@ -17,7 +17,7 @@ class GetAllPostsView(HTTPViewHelper):
         raise NotFound(f"no posts in section {section_id}")
 
 
-class GetPostsByPage(HTTPViewHelper):
+class GetPostsByPageView(HTTPViewHelper):
     body_required = False
     json_required = False
 
@@ -28,6 +28,19 @@ class GetPostsByPage(HTTPViewHelper):
         if posts:
             return posts
         raise NotFound(f"no posts on {page_number} page")
+
+
+class GetPostsBySearchView(HTTPViewHelper):
+    body_required = True
+    json_required = ["search"]
+    type_check = {"search": str}
+
+    @server_error_wrapper
+    async def get(self, request):
+        posts = await db_api.get_posts_by_search(request)
+        if posts:
+            return posts
+        raise NotFound(f"no found posts by search: {request.get('search')}")
 
 
 class GetPostById(HTTPViewHelper):
