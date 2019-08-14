@@ -7,25 +7,17 @@ CREATE TABLE forum.public.sections (
     updated_at TIMESTAMP
 );
 
--- CREATE TABLE forum.public.sections_title_search (
---     section_id INTEGER NOT NULL,
---     tsvector_title tsvector NOT NULL,
---     CONSTRAINT fk_section_id FOREIGN KEY (section_id)
---       REFERENCES forum.public.sections(id)
---       ON UPDATE CASCADE ON DELETE CASCADE
--- );
+CREATE TABLE forum.public.sections_search (
+    section_id INTEGER NOT NULL PRIMARY KEY,
+    title tsvector NOT NULL,
+    CONSTRAINT fk_section_id FOREIGN KEY (section_id)
+      REFERENCES forum.public.sections(id)
+      ON UPDATE CASCADE ON DELETE CASCADE
+);
 
--- CREATE INDEX search_tsvector_title
---     ON forum.public.sections_title_search
---         USING gin(tsvector_title);
-
--- CREATE INDEX search_sections_id
---     ON forum.public.sections_title_search
---         USING btree(section_id);
-
-CREATE INDEX section_id
-    ON forum.public.sections
-        USING btree(id);
+CREATE INDEX sections_search_title
+    ON forum.public.sections_search
+        USING gin(title);
 
 -- таблица постов в разделах форума:
 CREATE TABLE forum.public.posts
@@ -41,9 +33,17 @@ CREATE TABLE forum.public.posts
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE INDEX post_id
-    ON forum.public.posts
-        USING btree(id);
+CREATE TABLE forum.public.posts_search (
+    post_id INTEGER NOT NULL PRIMARY KEY,
+    title tsvector NOT NULL,
+    CONSTRAINT fk_posts_id FOREIGN KEY (post_id)
+      REFERENCES forum.public.posts(id)
+      ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE INDEX posts_search_title
+    ON forum.public.posts_search
+        USING gin(title);
 
 -- таблица комментариев постов:
 CREATE TABLE forum.public.comments (
@@ -60,7 +60,3 @@ CREATE TABLE forum.public.comments (
       REFERENCES forum.public.comments(id)
       ON UPDATE CASCADE ON DELETE CASCADE
 );
-
-CREATE INDEX comment_id
-    ON forum.public.comments
-        USING btree(id);
