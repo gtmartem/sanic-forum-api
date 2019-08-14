@@ -22,9 +22,9 @@ class GetPostsByPage(HTTPViewHelper):
     json_required = False
 
     @server_error_wrapper
-    async def get(self, request, page_number):
+    async def get(self, request, section_id, page_number):
         page_number = 1 if page_number in [0, 1] else page_number
-        posts = await db_api.get_posts_by_page(page_number)
+        posts = await db_api.get_posts_by_page(section_id, page_number)
         if posts:
             return posts
         raise NotFound(f"no posts on {page_number} page")

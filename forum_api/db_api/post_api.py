@@ -10,12 +10,36 @@ async def get_all_posts(section_id):
     query = """
     SELECT id, section_id, title, description, created_at, updated_at 
     FROM public.posts
-    WHERE section_id = %(section_id)s;"""
+    WHERE section_id = %(section_id)s
+    ORDER BY updated_at DESC;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"section_id": section_id})
             data = await cur.fetchall()
-            return [dict(u) for u in data]
+            if data:
+                return [dict(u) for u in data]
+
+
+async def get_posts_by_page(section_id, page_number):
+    query = """
+    SELECT id, section_id, title, description, created_at, updated_at 
+    FROM public.posts
+    WHERE section_id = %(section_id)s
+    ORDER BY updated_at DESC
+    LIMIT %(limit)s OFFSET %(offset)s;"""
+    limit = 30
+    offset = (page_number - 1) * limit
+    params = dict(
+        section_id=section_id,
+        limit=limit,
+        offset=offset
+    )
+    async with aiopg.connect(DB_URL) as conn:
+        async with conn.cursor(cursor_factory=DictCursor) as cur:
+            await cur.execute(query, params)
+            data = await cur.fetchall()
+            if data:
+                return [dict(u) for u in data]
 
 
 async def get_post_by_id(post_id):
@@ -52,7 +76,8 @@ async def post_post(request, section_id):
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
             data = await cur.fetchone()
-            return dict(data)
+            if data:
+                return dict(data)
 
 
 async def put_post(request, post_id):
