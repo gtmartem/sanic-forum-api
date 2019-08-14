@@ -46,6 +46,7 @@ async def get_section_by_id(section_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def post_section(request):
@@ -55,8 +56,8 @@ async def post_section(request):
     VALUES (%(title)s, %(description)s, %(created_at)s, %(updated_at)s)
     RETURNING  id, title, description, created_at, updated_at;"""
     params = dict(
-        title=request.get("title"),
-        description=request.get("description"),
+        title=request.get("title", None),
+        description=request.get("description", None),
         created_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         updated_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )

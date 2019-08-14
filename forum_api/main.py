@@ -1,10 +1,14 @@
 from sanic import Sanic
+from sanic.exceptions import InvalidUsage, ServerError, NotFound
 
 from forum_api.api.api_versions import api_versions
+from forum_api.errors.handler import error_handler
 
+app = Sanic()
+app.blueprint(api_versions)
+app.error_handler.add(InvalidUsage, error_handler)
+app.error_handler.add(NotFound, error_handler)
+app.error_handler.add(ServerError, error_handler)
 
 if __name__ == "__main__":
-
-    web_app = Sanic()
-    web_app.blueprint(api_versions)
-    web_app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
