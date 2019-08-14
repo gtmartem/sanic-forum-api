@@ -49,10 +49,12 @@ class GetSectionsBySearchView(HTTPViewHelper):
 
     @server_error_wrapper
     async def get(self, request):
-        sections = await db_api.get_sections_by_search(request)
+        print(request.json.get("search"))
+        sections = await db_api.get_sections_by_search(request.json)
         if sections:
             return sections
-        raise NotFound(f"no found sections by search: {request.get('search')}")
+        raise NotFound(f"no found sections by search: "
+                       f"{request.json.get('search')}")
 
 
 class PostSectionView(HTTPViewHelper):
@@ -86,5 +88,7 @@ class DeleteSectionView(HTTPViewHelper):
 
     @server_error_wrapper
     async def delete(self, request, section_id):
-        await db_api.delete_section(section_id)
-        return {"id": section_id}
+        res = await db_api.delete_section(section_id)
+        if res:
+            return {"id": section_id}
+        raise NotFound(f"no section with {section_id} id")

@@ -18,6 +18,7 @@ async def get_all_comments(post_id):
             data = await cur.fetchall()
             if data:
                 return [dict(u) for u in data]
+            return None
 
 
 async def get_comment_by_id(comment_id):
@@ -31,6 +32,7 @@ async def get_comment_by_id(comment_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def post_comment(request, post_id):
@@ -52,6 +54,7 @@ async def post_comment(request, post_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def get_comment_level(parent_id):
@@ -65,6 +68,7 @@ async def get_comment_level(parent_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def put_comment(request, comment_id):
@@ -87,11 +91,17 @@ async def put_comment(request, comment_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def delete_comment(comment_id):
     query = """
-    DELETE FROM public.comments WHERE id = %(comment_id)s"""
+    DELETE FROM public.comments WHERE id = %(comment_id)s
+    RETURNING id;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"comment_id": comment_id})
+            res = await cur.fetchone()
+            if res:
+                return dict(res)
+            return None

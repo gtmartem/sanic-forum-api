@@ -17,7 +17,7 @@ class HTTPViewHelper(HTTPMethodView):
         return self.prepared_response(result)
 
     def validate_request(self, request):
-        if not request and self.body_required:
+        if not request.body and self.body_required:
             raise InvalidUsage("empty body")
         if self.json_required:
             for k in self.json_required:
@@ -26,7 +26,6 @@ class HTTPViewHelper(HTTPMethodView):
         if self.type_check:
             for k in self.type_check.keys():
                 try:
-                    print(self.type_check)
                     self.type_check[k](request.get(k))
                 except TypeError:
                     raise InvalidUsage(

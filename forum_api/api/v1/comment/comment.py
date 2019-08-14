@@ -58,7 +58,7 @@ class PostCommentView(HTTPViewHelper):
             raise InvalidUsage(
                 "parent id:int or level:int for comment insertion needed")
         request = request.json.update(state)
-        comment = await db_api.post_comment(request, post_id)
+        comment = await db_api.post_comment(request.json, post_id)
         if comment:
             return comment
         raise ServerError("server error")
@@ -92,5 +92,7 @@ class DeleteCommentView(HTTPViewHelper):
 
     @server_error_wrapper
     async def delete(self, request, comment_id):
-        await db_api.delete_comment(comment_id)
-        return {"id": comment_id}
+        res = await db_api.delete_comment(comment_id)
+        if res:
+            return {"id": comment_id}
+        raise NotFound(f"no comment with {comment_id} id")

@@ -18,7 +18,7 @@ v1.add_route(GetSectionsByPageView.as_view(), uri="/sections/<page_number:int>",
              methods=["GET"])
 v1.add_route(GetSectionByIdView.as_view(), uri="/section/<section_id:int>",
              methods=["GET"])
-v1.add_route(GetSectionsBySearchView.as_view(), uri="/section/search",
+v1.add_route(GetSectionsBySearchView.as_view(), uri="/sections/search",
              methods=["GET"])
 v1.add_route(PostSectionView.as_view(), uri="/section",
              methods=["POST"])
@@ -35,7 +35,8 @@ v1.add_route(GetPostsByPageView.as_view(),
              methods=["GET"])
 v1.add_route(GetPostById.as_view(), uri="/post/<post_id:int>",
              methods=["GET"])
-v1.add_route(GetPostsBySearchView.as_view(), uri="/posts/search", methods=["GET"])
+v1.add_route(GetPostsBySearchView.as_view(), uri="/posts/search",
+             methods=["GET"])
 v1.add_route(PostPostView.as_view(), uri="/section/<section_id:int>/post",
              methods=["POST"])
 v1.add_route(PutPostView.as_view(), uri="/post/<post_id:int>",

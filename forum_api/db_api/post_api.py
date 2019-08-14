@@ -2,6 +2,7 @@ import datetime
 
 import aiopg
 from psycopg2.extras import DictCursor
+from sanic.exceptions import NotFound
 
 from forum_api.db_api.__config import DB_URL
 
@@ -18,6 +19,7 @@ async def get_all_posts(section_id):
             data = await cur.fetchall()
             if data:
                 return [dict(u) for u in data]
+            return None
 
 
 async def get_posts_by_page(section_id, page_number):
@@ -40,6 +42,7 @@ async def get_posts_by_page(section_id, page_number):
             data = await cur.fetchall()
             if data:
                 return [dict(u) for u in data]
+            return None
 
 
 async def get_post_by_id(post_id):
@@ -53,6 +56,7 @@ async def get_post_by_id(post_id):
             data = await cur.fetchone()
             if data:
                 return dict(data)
+            return None
 
 
 async def get_posts_by_search(request):
@@ -112,6 +116,7 @@ async def post_post(request, section_id):
                 )
                 await cur.execute(search_query, serach_params)
                 return dict(data)
+            return None
 
 
 async def put_post(request, post_id):
@@ -122,23 +127,38 @@ async def put_post(request, post_id):
         updated_at = %(updated_at)s
     WHERE id = %(post_id)s
     RETURNING  id, section_id, title, description, created_at, updated_at;"""
+    search_query = """
+    UPDATE posts_search 
+    SET title = to_tsvector(%(title)s)
+    WHERE post_id = %(post_id)s;"""
     params = dict(
         title=request.get("title"),
         description=request.get("description"),
         updated_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         post_id=post_id
     )
+    search_params = dict(post_id=post_id, title=request.get("title"))
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
             data = await cur.fetchone()
             if data:
+                await cur.execute(search_query, search_params)
                 return dict(data)
+            return None
 
 
 async def delete_post(post_id):
     query = """
-    DELETE FROM public.posts WHERE id = %(post_id)s;"""
+    DELETE FROM public.posts WHERE id = %(post_id)s
+    RETURNING id;"""
+    search_query = """
+    DELETE FROM posts_search WHERE post_id = %(post_id)s;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"post_id": post_id})
+            res = await cur.fetchone()
+            if res:
+                cur.execute(search_query, {"post_id": post_id})
+                return dict(res)
+            return None

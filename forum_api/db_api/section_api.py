@@ -2,6 +2,7 @@ import datetime
 
 import aiopg
 from psycopg2.extras import DictCursor
+from sanic.exceptions import InvalidUsage, NotFound
 
 from forum_api.db_api.__config import DB_URL
 
@@ -17,6 +18,7 @@ async def get_all_sections():
             data = await cur.fetchall()
             if data:
                 return [dict(u) for u in data]
+            return None
 
 
 async def get_sections_by_page(page_number):
@@ -33,6 +35,7 @@ async def get_sections_by_page(page_number):
             data = await cur.fetchall()
             if data:
                 return [dict(u) for u in data]
+            return None
 
 
 async def get_section_by_id(section_id):
@@ -100,6 +103,7 @@ async def post_section(request):
                 )
                 await cur.execute(search_query, serach_params)
                 return dict(data)
+            return None
 
 
 async def put_section(request, section_id):
@@ -110,23 +114,39 @@ async def put_section(request, section_id):
         updated_at = %(updated_at)s
     WHERE id = %(section_id)s
     RETURNING  id, title, description, created_at, updated_at;"""
+    search_query = """
+    UPDATE sections_search 
+    SET title = to_tsvector(%(title)s)
+    WHERE section_id = %(section_id)s;"""
     params = dict(
         title=request.get("title"),
         description=request.get("description"),
         updated_at=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         section_id=section_id
     )
+    search_params = dict(section_id=section_id, title=request.get("title"))
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, params)
             data = await cur.fetchone()
             if data:
+                await cur.execute(search_query, search_params)
                 return dict(data)
+            return None
 
 
 async def delete_section(section_id):
     query = """
-    DELETE FROM sections WHERE id = %(section_id)s;"""
+    DELETE FROM sections WHERE id = %(section_id)s
+    RETURNING id;"""
+    search_query = """
+    DELETE FROM sections_search WHERE section_id = %(section_id)s;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
             await cur.execute(query, {"section_id": section_id})
+            res = await cur.fetchone()
+            if res:
+                cur.execute(search_query, {"section_id": section_id})
+                return dict(res)
+            return None
+

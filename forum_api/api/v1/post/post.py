@@ -37,10 +37,11 @@ class GetPostsBySearchView(HTTPViewHelper):
 
     @server_error_wrapper
     async def get(self, request):
-        posts = await db_api.get_posts_by_search(request)
+        posts = await db_api.get_posts_by_search(request.json)
         if posts:
             return posts
-        raise NotFound(f"no found posts by search: {request.get('search')}")
+        raise NotFound(f"no found posts by search: "
+                       f"{request.json.get('search')}")
 
 
 class GetPostById(HTTPViewHelper):
@@ -88,5 +89,7 @@ class DeletePostView(HTTPViewHelper):
 
     @server_error_wrapper
     async def delete(self, request, post_id):
-        await db_api.delete_post(post_id)
-        return {"id": post_id}
+        res = await db_api.delete_post(post_id)
+        if res:
+            return {"id": post_id}
+        raise NotFound(f"no post with {post_id} id")
