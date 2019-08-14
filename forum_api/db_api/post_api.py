@@ -67,7 +67,7 @@ async def get_posts_by_search(request):
     FROM public.posts_search
     LEFT JOIN public.posts 
     ON public.posts.id = public.posts_search.post_id
-    WHERE "public.posts_search.title" @@ plainto_tsquery(%(search)s)
+    WHERE public.posts_search.title @@ plainto_tsquery(%(search)s)
     ORDER BY rank;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:

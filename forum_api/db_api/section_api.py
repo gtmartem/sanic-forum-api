@@ -60,7 +60,7 @@ async def get_sections_by_search(request):
     FROM public.sections_search
     LEFT JOIN public.sections 
     ON public.sections.id = public.sections_search.section_id
-    WHERE "public.sections_search.title" @@ plainto_tsquery(%(search)s)
+    WHERE public.sections_search.title @@ plainto_tsquery(%(search)s)
     ORDER BY rank;"""
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
