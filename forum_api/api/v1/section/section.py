@@ -1,4 +1,4 @@
-from sanic.exceptions import NotFound
+from sanic.exceptions import NotFound, InvalidUsage
 
 from forum_api import db_api
 from forum_api.api.v1.helper import HTTPViewHelper
@@ -75,4 +75,3 @@ class DeleteSectionView(HTTPViewHelper):
     async def delete(self, request, section_id):
         await db_api.delete_section(section_id)
         return {"id": section_id}
-
