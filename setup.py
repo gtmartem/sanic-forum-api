@@ -6,7 +6,10 @@ setup(
     name='forum_api',
     version='0.1.0',
     install_requires=[
-        "sanic==19.3.1"
+        "sanic==19.3.1",
+        "aiopg==0.16.0",
+        "pytest==5.0.1",
+        "aiohttp==3.5.4"  # нужно для работы pytest
     ],
     include_package_data=True,
     packages=find_packages(),
