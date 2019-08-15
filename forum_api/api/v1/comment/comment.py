@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from sanic.exceptions import NotFound, ServerError, InvalidUsage
 
 from forum_api import db_api
@@ -26,9 +28,11 @@ class GetAllCommentsView(HTTPViewHelper):
     def create_comments_tree(self, comments, tree, deep=1, parent_id=None):
         for leaf in comments:
             if leaf.get("level") == deep and leaf.get("parent_id") == parent_id:
-                leaf["subtree"] = []
-                tree.append(leaf)
-                self.create_comments_tree(comments, leaf["subtree"],
+                temp = deepcopy(leaf)
+                temp["subtree"] = []
+                tree.append(temp)
+                i = tree.index(temp)
+                self.create_comments_tree(comments, tree[i]["subtree"],
                                           deep=deep+1, parent_id=leaf.get("id"))
 
 
@@ -53,12 +57,14 @@ class PostCommentView(HTTPViewHelper):
     @server_error_wrapper
     async def post(self, request, post_id):
         try:
-            state = await self.inherit_state(request)
+            state = await self.inherit_state(request.json)
         except (AssertionError, TypeError):
             raise InvalidUsage(
                 "parent id:int or level:int for comment insertion needed")
-        request = request.json.update(state)
-        comment = await db_api.post_comment(request.json, post_id)
+        request = request.json
+        request.update(state)
+        print(request)
+        comment = await db_api.post_comment(request, post_id)
         if comment:
             return comment
         raise ServerError("server error")
@@ -69,8 +75,8 @@ class PostCommentView(HTTPViewHelper):
         if not parent_id:
             return {"parent_id": None, "level": 1}
         else:
-            level = await db_api.get_comment_level(parent_id)
-            return {"parent_id": parent_id, "level": level}
+            level = (await db_api.get_comment_level(parent_id)).get("level")
+            return {"parent_id": parent_id, "level": level + 1}
 
 
 class PutCommentView(HTTPViewHelper):

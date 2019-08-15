@@ -61,12 +61,12 @@ async def get_post_by_id(post_id):
 
 async def get_posts_by_search(request):
     query = """
-    SELECT public.post.id, 
-           public.post.title, 
-           public.post.description, 
-           public.post.created_at, 
-           public.post.updated_at, 
-           public.post.section_id,
+    SELECT public.posts.id, 
+           public.posts.title, 
+           public.posts.description, 
+           public.posts.created_at, 
+           public.posts.updated_at, 
+           public.posts.section_id,
            1 AS rank
     FROM public.posts_search
     LEFT JOIN public.posts 
@@ -107,16 +107,20 @@ async def post_post(request, section_id):
     )
     async with aiopg.connect(DB_URL) as conn:
         async with conn.cursor(cursor_factory=DictCursor) as cur:
-            await cur.execute(query, params)
-            data = await cur.fetchone()
-            if data:
-                serach_params = dict(
-                    post_id=data.get("id"),
-                    title=data.get("title")
-                )
-                await cur.execute(search_query, serach_params)
-                return dict(data)
-            return None
+            try:
+                await cur.execute(query, params)
+                data = await cur.fetchone()
+                if data:
+                    serach_params = dict(
+                        post_id=data.get("id"),
+                        title=data.get("title")
+                    )
+                    await cur.execute(search_query, serach_params)
+                    return dict(data)
+                return None
+            except Exception as e:
+                # TODO: таргетированный отлов ошибок psycopg2
+                raise NotFound(e)
 
 
 async def put_post(request, post_id):

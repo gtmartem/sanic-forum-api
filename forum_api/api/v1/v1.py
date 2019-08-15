@@ -31,7 +31,7 @@ v1.add_route(DeleteSectionView.as_view(), uri="/section/<section_id:int>",
 v1.add_route(GetAllPostsView.as_view(), uri="/section/<section_id:int>/posts",
              methods=["GET"])
 v1.add_route(GetPostsByPageView.as_view(),
-             uri="/section/<section_id: int>/posts/<page_number:int>",
+             uri="/section/<section_id:int>/posts/<page_number:int>",
              methods=["GET"])
 v1.add_route(GetPostById.as_view(), uri="/post/<post_id:int>",
              methods=["GET"])

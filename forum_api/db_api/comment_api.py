@@ -79,6 +79,13 @@ async def put_comment(request, comment_id):
         parent_id = %(parent_id)s
     WHERE id = %(comment_id)s
     RETURNING  id, post_id, title, level, parent_id, created_at;"""
+    if not (request.get("level") or request.get("parent_id")):
+        comment = await get_comment_by_id(comment_id)
+        if comment:
+            request["title"] = comment.get("title")
+            request["level"] = comment.get("level")
+        else:
+            return None
     params = dict(
         title=request.get("title"),
         level=request.get("level"),
