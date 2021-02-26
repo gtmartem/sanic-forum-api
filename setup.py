@@ -9,7 +9,7 @@ setup(
         "sanic==19.3.1",
         "aiopg==0.16.0",
         "pytest==5.0.1",
-        "aiohttp==3.5.4"  # нужно для работы pytest
+        "aiohttp==3.7.4"  # нужно для работы pytest
     ],
     include_package_data=True,
     packages=find_packages(),
